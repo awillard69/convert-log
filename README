@@ -1,0 +1,13 @@
+This project represents my effort to convert a Cabrillo log format file to a format that is required for the North American QRP CW Club, NAQCC, for their Sprint events.
+
+I prefer to use N1MM as my logging software of choice.  It does not natively support the NAQCC format, but it does support a format for ARCI.  This contest has sufficient similarities to use for the Sprints.
+
+Using N1MM, create a new log for the ARCI contest.  Participate in your contest, then export the Cabrillo formatted file.
+
+Using this project and the 'convert_log.pl' script, you convert the QSO data to a format suitable for reporting to the NAQCC for your participation.
+
+This project does not profess to accurately identify your score.  It does it's best to convert the data and identify what should be formatted.  It will identify the known limitations, such as bands allowed, formats for nonmember values.
+
+Anthony Willard
+AB9YC
+
