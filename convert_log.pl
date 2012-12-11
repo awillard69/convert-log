@@ -16,10 +16,11 @@ $/="\n"; # default input record delimiter
 $,="\t"; # default output field delimiter
 $\="\n"; # default output record delimiter
 
-my( $inputfile, $outputfile, $helpfile );
+my( $inputfile, $outputfile, $helpfile, $xreffile );
 
 GetOptions( "h" => \$helpfile,
 		"i|input=s" => \$inputfile,
+		"x|xref=s" => \$xreffile,
         "o|output=s" => \$outputfile
         );
 
@@ -49,7 +50,34 @@ else
 	*OUTPUT = *STDERR;
 }
 
-my ( $qsocount, $membercount, $spccount, %spcmults, $ismember, $formatspec  );
+my ( $qsocount, $membercount, $spccount, %spcmults, $ismember, $formatspec, %xref  );
+
+if( defined( $xreffile ) )
+{
+	open( XREF, "<", $xreffile ) || die( "Unable to open xref file $xreffile: \"$!\"" );
+	
+	while( <XREF> )
+	{
+		chomp();
+		chop();
+		
+		my $line = $_;
+		if( $line =~ /^[0-9]+/ )
+		{
+			$line =~ s/ [ ]+/\;/g;  # remove extraneous spaces and replace with a ;
+			$line =~ s/, /\;/g; # remove the delimiters for the CSZ
+			
+			#print STDERR $line;
+			my @fields = split( /;/, $line );
+			
+			$xref{ $fields[2] } = $line ;
+		}
+	}
+	
+	close( XREF );
+	
+	print STDERR "Loaded " . scalar( keys( %xref ) ) . " cross reference entries." ;
+}
 
 # defaults
 $qsocount = 0;
@@ -100,6 +128,36 @@ while( <INPUT> )
 		
 		# set the member rate
 		$ismember = 2 if( $power =~ /^[0-9][0-9][0-9][0-9]$/ );
+		
+		# if we have any cross reference data, we should compare it for clarity
+		if(  %xref )
+		{
+			$ismember = 1; # reset this to validate here...
+			
+			if( defined( $xref{ $worked } ) )
+			{
+				my @data = split( /;/, $xref{ $worked } );
+				
+				if( $power ne $data[0] )
+				{
+					print STDERR "Contact $worked at $time indicated member number $power but cross reference shows " . $data[0];
+				}
+				
+				if( $spc ne $data[4] )
+				{
+					print STDERR "Contact $worked at $time indicated state $spc but cross reference shows " . $data[4];
+				}
+				
+				$ismember = 2;
+			}
+			else # not listed in the xref, so validate a member number or not...
+			{
+				if( $power =~ /^[0-9][0-9][0-9][0-9]$/ )
+				{
+					#print STDERR "Contact $worked at $time indicated a member ID but cannot verify, $power";
+				}
+			}
+		}
 		
 		# increment the member counter
 		$membercount++ if( $ismember == 2 );
@@ -161,9 +219,10 @@ sub usage
 {
 	print STDERR "convert_log.pl: convert a Cabrillo format log from N1MM into the format required for a NAQCC Sprint format.";
 	print STDERR "Usage";
-	print STDERR "convert_log.pl -[i|input]=<log file> [-[o|output]=<output file>]";
+	print STDERR "convert_log.pl -[i|input]=<log file> [-[o|output]=<output file>] [-x|xref=<naqcc reference file>]";
 	print STDERR "\t<log file> is the name of the Cabrillo log file from N1MM";
 	print STDERR "\t<output file> is the file to create with the reformatted data, if not provided, output goes to the screen";
+	print STDERR "\t<naqcc reference file> is the NAQCC membership listing for cross checking.";
 	
 	exit( 99 );
 }
