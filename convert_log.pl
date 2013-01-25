@@ -206,6 +206,7 @@ sub map_band
 	my ($freq) = @_;
 	
 	$freq =~ s/[ ]*//g;
+	return( "160" ) if ( $freq =~ /^18[0-9][0-9]$/ );
 	return( "80" ) if ( $freq =~ /^3[0-9][0-9][0-9]$/ );
 	return( "40" ) if ( $freq =~ /^7[0-9][0-9][0-9]$/ );
 	return( "20" ) if ( $freq =~ /^14[0-9][0-9][0-9]$/ );
