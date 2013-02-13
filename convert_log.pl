@@ -134,6 +134,9 @@ while( <INPUT> )
 		{
 			$ismember = 1; # reset this to validate here...
 			
+			# remove any section suffix, /0, /8, etc...
+			$worked =~ s/\/[0-9]+$//g;
+			
 			if( defined( $xref{ $worked } ) )
 			{
 				my @data = split( /;/, $xref{ $worked } );
