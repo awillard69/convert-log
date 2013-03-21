@@ -139,6 +139,7 @@ while( <INPUT> )
 			
 			if( defined( $xref{ $worked } ) )
 			{
+				#print STDERR $xref{ $worked };
 				my @data = split( /;/, $xref{ $worked } );
 				
 				if( $power ne $data[0] )
@@ -146,9 +147,9 @@ while( <INPUT> )
 					print STDERR "Contact $worked at $time indicated member number $power but cross reference shows " . $data[0];
 				}
 				
-				if( $spc ne $data[4] )
+				if( $spc ne $data[3] )
 				{
-					print STDERR "Contact $worked at $time indicated state $spc but cross reference shows " . $data[4];
+					print STDERR "Contact $worked at $time indicated state $spc but cross reference shows " . $data[3];
 				}
 				
 				$ismember = 2;
@@ -157,7 +158,7 @@ while( <INPUT> )
 			{
 				if( $power =~ /^[0-9][0-9][0-9][0-9]$/ )
 				{
-					#print STDERR "Contact $worked at $time indicated a member ID but cannot verify, $power";
+					print STDERR "Contact $worked at $time indicated a member ID but cannot verify, $power";
 				}
 			}
 		}
